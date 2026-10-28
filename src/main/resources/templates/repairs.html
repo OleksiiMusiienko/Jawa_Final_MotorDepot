@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ремонт — Автобаза</title>
+</head>
+<body>
+<nav>
+    <a th:href="@{/}">На главную</a>
+    <a th:href="@{/trips}">Рейсы</a>
+    <a th:href="@{/autos}">Автомобили</a>
+</nav>
+
+<h1>Заявки на ремонт</h1>
+
+<p th:if="${successMessage}"
+   th:text="${successMessage}"
+   style="color: green;">
+</p>
+
+<p th:if="${errorMessage}"
+   th:text="${errorMessage}"
+   style="color: red;">
+</p>
+
+<p th:if="${#lists.isEmpty(repairs)}">
+    Заявок на ремонт пока нет.
+</p>
+
+<table th:unless="${#lists.isEmpty(repairs)}">
+    <thead>
+    <tr>
+        <th>ID заявки</th>
+        <th>Автомобиль</th>
+        <th>Водитель</th>
+        <th>ID рейса</th>
+        <th>Описание поломки</th>
+        <th>Статус ремонта</th>
+        <th>Действия</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="repair : ${repairs}">
+        <td th:text="${repair.id}"></td>
+        <td th:text="${repair.auto.registrationNumber}"></td>
+        <td th:text="${repair.driver.fullName}"></td>
+
+        <td th:text="${repair.trip != null
+                              ? repair.trip.id : '—'}">
+        </td>
+
+        <td th:text="${repair.description}"></td>
+        <td th:text="${repair.status}"></td>
+
+        <td>
+            <form th:if="${repair.status.name() == 'NEW'}"
+                  th:action="@{/repairs/{id}/start(id=${repair.id})}"
+                  method="post">
+
+                <button type="submit">Начать ремонт</button>
+            </form>
+
+            <form th:if="${repair.status.name() == 'IN_PROGRESS'}"
+                  th:action="@{/repairs/{id}/complete(id=${repair.id})}"
+                  method="post">
+
+                <button type="submit">Завершить ремонт</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

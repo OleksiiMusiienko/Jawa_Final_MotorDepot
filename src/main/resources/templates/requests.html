@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Заявки — Автобаза</title>
+</head>
+<body>
+<a th:href="@{/}">На главную</a>
+
+<h1>Заявки на перевозку</h1>
+
+<p th:if="${successMessage}"
+   th:text="${successMessage}"
+   style="color: green;">
+</p>
+
+<p th:if="${errorMessage}"
+   th:text="${errorMessage}"
+   style="color: red;">
+</p>
+
+<form th:action="@{/requests/generate}" method="post">
+    <button type="submit">Следующий день</button>
+</form>
+
+<p>Каждое нажатие создаёт от 1 до 5 случайных заявок.</p>
+
+<p th:if="${#lists.isEmpty(requests)}">
+    Заявок пока нет.
+</p>
+
+<table th:unless="${#lists.isEmpty(requests)}">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Пункт назначения</th>
+        <th>Масса груза, кг</th>
+        <th>Тип груза</th>
+        <th>Статус</th>
+        <th>Назначение рейса</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="request : ${requests}">
+        <td th:text="${request.id}"></td>
+        <td th:text="${request.destination}"></td>
+        <td th:text="${request.cargoWeightKg}"></td>
+        <td th:text="${request.cargoType}"></td>
+        <td th:text="${request.requestStatus}"></td>
+
+        <td>
+            <form
+                    th:if="${request.requestStatus.name() == 'NEW'}"
+                    th:action="@{/requests/{id}/assign(id=${request.id})}"
+                    method="post">
+
+                <label>
+                    Стоимость перевозки:
+                    <input type="number"
+                           name="transportationCost"
+                           min="0"
+                           step="0.01"
+                           required>
+                </label>
+
+                <button type="submit">Назначить рейс</button>
+            </form>
+
+            <span
+                    th:unless="${request.requestStatus.name() == 'NEW'}">
+                        —
+                    </span>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

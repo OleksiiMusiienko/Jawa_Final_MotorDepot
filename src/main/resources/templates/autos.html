@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Автомобили — Автобаза</title>
+</head>
+<body>
+<a th:href="@{/}">На главную</a>
+
+<h1>Автомобили</h1>
+
+<p th:if="${#lists.isEmpty(autos)}">
+    Автомобили пока не добавлены.
+</p>
+
+<table th:unless="${#lists.isEmpty(autos)}">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Номер</th>
+        <th>Марка</th>
+        <th>Модель</th>
+        <th>Грузоподъёмность, кг</th>
+        <th>Тип груза</th>
+        <th>Состояние</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="auto : ${autos}">
+        <td th:text="${auto.id}"></td>
+        <td th:text="${auto.registrationNumber}"></td>
+        <td th:text="${auto.brand}"></td>
+        <td th:text="${auto.model}"></td>
+        <td th:text="${auto.loadCapacityKg}"></td>
+        <td th:text="${auto.cargoType}"></td>
+        <td th:text="${auto.autoCondition}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

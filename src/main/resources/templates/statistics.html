@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Статистика — Автобаза</title>
+</head>
+<body>
+<nav>
+    <a th:href="@{/}">На главную</a>
+    <a th:href="@{/trips}">Рейсы</a>
+</nav>
+
+<h1>Статистика</h1>
+<p th:if="${successMessage}"
+   th:text="${successMessage}"
+   style="color: green;">
+</p>
+
+<p th:if="${errorMessage}"
+   th:text="${errorMessage}"
+   style="color: red;">
+</p>
+
+<form th:action="@{/reports/trips}" method="post">
+    <button type="submit">
+        Вывести отчёт о рейсах в файл и консоль
+    </button>
+</form>
+<p>Учитываются только завершённые рейсы.</p>
+
+
+<h2>Водитель с наибольшим заработком</h2>
+
+<p th:if="${topDriver == null}">
+    Завершённых рейсов пока нет.
+</p>
+
+<div th:if="${topDriver != null}">
+    <p>
+        Водитель:
+        <strong th:text="${topDriver.fullName}"></strong>
+    </p>
+
+    <p>
+        Заработок:
+        <strong th:text="${#numbers.formatDecimal(
+                earnings.get(topDriver.id), 1, 2)}">
+        </strong>
+    </p>
+</div>
+
+<h2>Статистика по водителям</h2>
+
+<p th:if="${#lists.isEmpty(drivers)}">
+    Водители пока не добавлены.
+</p>
+
+<table th:unless="${#lists.isEmpty(drivers)}">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Водитель</th>
+        <th>Выполнено перевозок</th>
+        <th>Перевезено, кг</th>
+        <th>Заработок</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="driver : ${drivers}">
+        <td th:text="${driver.id}"></td>
+        <td th:text="${driver.fullName}"></td>
+
+        <td th:text="${tripCounts.getOrDefault(driver.id, 0)}">
+        </td>
+
+        <td th:text="${#numbers.formatDecimal(
+                    cargoWeights.getOrDefault(driver.id, 0.0), 1, 2)}">
+        </td>
+
+        <td th:text="${#numbers.formatDecimal(
+                    earnings.getOrDefault(driver.id, 0.0), 1, 2)}">
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<h2>Статистика по пунктам назначения</h2>
+
+<p th:if="${#maps.isEmpty(destinationCounts)}">
+    Доставленных грузов пока нет.
+</p>
+
+<table th:unless="${#maps.isEmpty(destinationCounts)}">
+    <thead>
+    <tr>
+        <th>Пункт назначения</th>
+        <th>Выполнено перевозок</th>
+        <th>Доставлено, кг</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="entry : ${destinationCounts}">
+        <td th:text="${entry.key}"></td>
+        <td th:text="${entry.value}"></td>
+
+        <td th:text="${#numbers.formatDecimal(
+                    destinationWeights.getOrDefault(entry.key, 0.0),
+                    1, 2)}">
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

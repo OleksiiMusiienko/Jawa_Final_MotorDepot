@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Рейсы — Автобаза</title>
+</head>
+<body>
+<nav>
+    <a th:href="@{/}">На главную</a>
+    <a th:href="@{/requests}">Заявки</a>
+</nav>
+
+<h1>Рейсы</h1>
+
+<p th:if="${successMessage}"
+   th:text="${successMessage}"
+   style="color: green;">
+</p>
+
+<p th:if="${errorMessage}"
+   th:text="${errorMessage}"
+   style="color: red;">
+</p>
+
+<p th:if="${#lists.isEmpty(trips)}">
+    Рейсов пока нет. Назначьте рейс на странице заявок.
+</p>
+
+<table th:unless="${#lists.isEmpty(trips)}">
+    <thead>
+    <tr>
+        <th>ID рейса</th>
+        <th>ID заявки</th>
+        <th>Пункт назначения</th>
+        <th>Водитель</th>
+        <th>Автомобиль</th>
+        <th>Масса, кг</th>
+        <th>Статус</th>
+        <th>Стоимость</th>
+        <th>Выплата водителю</th>
+        <th>Состояние после рейса</th>
+        <th>Действия</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="trip : ${trips}">
+        <td th:text="${trip.id}"></td>
+        <td th:text="${trip.request.id}"></td>
+        <td th:text="${trip.request.destination}"></td>
+        <td th:text="${trip.driver.fullName}"></td>
+        <td th:text="${trip.auto.registrationNumber}"></td>
+        <td th:text="${trip.request.cargoWeightKg}"></td>
+        <td th:text="${trip.status}"></td>
+        <td th:text="${trip.transportationCost}"></td>
+
+        <td>
+                    <span th:if="${trip.status.name() == 'COMPLETED'}"
+                          th:text="${trip.driverPayment}">
+                    </span>
+
+            <span th:unless="${trip.status.name() == 'COMPLETED'}">
+                        —
+                    </span>
+        </td>
+
+        <td th:text="${trip.autoConditionAtCompletion != null
+                              ? trip.autoConditionAtCompletion : '—'}">
+        </td>
+
+        <td>
+            <form th:if="${trip.status.name() == 'PLANNED'}"
+                  th:action="@{/trips/{id}/start(id=${trip.id})}"
+                  method="post">
+
+                <button type="submit">Начать</button>
+            </form>
+
+            <form th:if="${trip.status.name() == 'IN_PROGRESS'}"
+                  th:action="@{/trips/{id}/complete(id=${trip.id})}"
+                  method="post">
+
+                <label>
+                    Состояние автомобиля:
+                    <select name="condition" required>
+                        <option value="" selected disabled>
+                            Выберите состояние
+                        </option>
+                        <option value="SERVICEABLE">
+                            Исправен
+                        </option>
+                        <option value="NEEDS_REPAIR">
+                            Требует ремонта
+                        </option>
+                    </select>
+                </label>
+
+                <button type="submit">Завершить</button>
+            </form>
+            <form th:if="${trip.status.name() == 'IN_PROGRESS'}"
+                  th:action="@{/trips/{id}/repair(id=${trip.id})}"
+                  method="post">
+
+                <label>
+                    Описание поломки:
+                    <input type="text"
+                           name="description"
+                           placeholder="Например: неисправность двигателя"
+                           required>
+                </label>
+
+                <button type="submit">Заявка на ремонт</button>
+            </form>
+            <form th:if="${trip.status.name() == 'SUSPENDED'
+              and trip.auto.autoCondition.name() == 'SERVICEABLE'}"
+                  th:action="@{/trips/{id}/resume(id=${trip.id})}"
+                  method="post">
+
+                <button type="submit">Возобновить рейс</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
